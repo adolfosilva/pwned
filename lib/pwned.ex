@@ -2,7 +2,6 @@ defmodule Pwned do
   @moduledoc """
   Check if your password has been pwned.
   """
-  @range_client Application.get_env(:pwned, :range_client)
 
   @doc """
   It uses [have i been pwned?](https://haveibeenpwned.com) to verify if a password has appeared in a data breach. In order to protect the value of the source password being searched the value is not sended through the network.
@@ -10,7 +9,7 @@ defmodule Pwned do
   ## Examples
 
       iex> Pwned.check_password("P@ssw0rd")
-      {:ok, 47205}
+      {:ok, 52579}
 
       iex> Pwned.check_password("Z76okiy2X1m5PFud8iPUQGqusShCJhg")
       {:ok, false}
@@ -19,12 +18,22 @@ defmodule Pwned do
   @spec check_password(String.t()) :: {:ok, integer} | {:ok, false} | :error
   def check_password(password) do
     with {head, rest} <- hash(password),
-         {:ok, response} <- @range_client.get(head),
+         {:ok, response} <- get(head),
          {:ok, range} <- parse_response(response),
          {:ok, answer} <- do_check(range, rest) do
       {:ok, answer}
     else
       :error -> :error
+    end
+  end
+
+  defp get(head) do
+    case HTTPoison.get("https://api.pwnedpasswords.com/range/#{head}") do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        {:ok, body}
+
+      _ ->
+        :error
     end
   end
 
