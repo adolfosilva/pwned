@@ -28,8 +28,8 @@ defmodule Pwned.MixProject do
 
   defp deps do
     [
-      {:httpoison, "~> 1.0"},
-      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:httpoison, "~> 1.5"},
+      {:ex_doc, ">= 0.21", only: :dev},
       {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false}
     ]
   end
